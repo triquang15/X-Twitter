@@ -3,6 +3,9 @@ import React from 'react'
 import { Navigation } from '../Navigation/Navigation'
 import { HomeSection } from './HomeSection'
 import { RightPart } from './RightPart'
+import { Route, Routes } from 'react-router-dom'
+import { Profile } from '../Profile/Profile'
+import { PostDetails } from '../Posts/PostDetails'
 
 export const HomePage = () => {
   return (
@@ -11,7 +14,13 @@ export const HomePage = () => {
         <Navigation/>
         </Grid>
         <Grid item xs={12} lg={6} className='px-5 lg:px-9 hidden lg:block w-full relative'>
-         <HomeSection/>
+          <Routes>
+            <Route path='/' element={<HomeSection/>}></Route>
+            <Route path='/home' element={<HomeSection/>}></Route>
+            <Route path='/profile/:id' element={<Profile/>}></Route>
+            <Route path='/post/:id' element={<PostDetails/>}></Route>
+          </Routes>
+         
         </Grid>
         <Grid item xs={0} lg={3} className='hidden lg:block w-full relative'>
          <RightPart/>
