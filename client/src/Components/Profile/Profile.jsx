@@ -11,17 +11,17 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { XCart } from '../HomePage/XCart';
+import ProfileModal from './ProfileModal';
 
 export const Profile = () => {
     const [tabValue, setTabValue] = useState("1");
     const navigate = useNavigate();
+    const [openProfileModal, setOpenProfileModal] = useState(false);
+    const handleOpenProfile = () => setOpenProfileModal(true);
+    const handleClose = () => setOpenProfileModal(false);
 
     const handleBack = () => navigate(-1);
-
-    const handleOpenProfile = () => {
-        console.log('handleOpenProfile');
-    }
-
+    
     const handleFollowUser = () => {
         console.log('handleFollowUser');
     }
@@ -48,7 +48,7 @@ export const Profile = () => {
                 <div className='flex justify-between items-start mt-5 h-[5rem]'>
                     <Avatar className='transform -translate-y-24' sx={{ width: "10rem", height: "10rem", border: "4px solid white" }} alt='username' src='https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png' />
                     {true ? (<Button onClick={handleOpenProfile}
-                        variant='contained' sx={{ borderRadius: '20px', bgcolor: "#00BFFF" }}>Update Profile
+                        variant='contained' sx={{ borderRadius: '20px', bgcolor: "#00BFFF" }}>Edit Profile
                     </Button>) : (
                         <Button onClick={handleFollowUser}
                             variant='contained' sx={{ borderRadius: '20px', bgcolor: "#00BFFF" }}>{true ? 'Follow' : 'Unfollow'}
@@ -110,6 +110,9 @@ export const Profile = () => {
                     <TabPanel value="4">Likes</TabPanel>
                     <TabPanel value="5">Highlights</TabPanel>
                 </TabContext>
+            </section>
+            <section>
+                <ProfileModal handleClose={handleClose} open={openProfileModal}/>
             </section>
         </div>
     )

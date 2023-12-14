@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import RepeatIcon from '@mui/icons-material/Repeat'
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
@@ -8,10 +8,14 @@ import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import FavoriteIcon from '@mui/icons-material/Favorite'
+import ReplyModal from './ReplyModal';
 
 export const XCart = () => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [openReplyModal, setOpenReplyModal] = useState(false);
+    const hanldeOpenReply = () => setOpenReplyModal(true);
+    const handleCloseReplyModal = () => setOpenReplyModal(false);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -25,10 +29,6 @@ export const XCart = () => {
         handleClose();
     }
 
-    const hanldeOpenReply = () => {
-        console.log('hanldeOpenReply');
-    }
-
     const handleRePost = () => {
         console.log('handleRePost');
     }
@@ -38,7 +38,7 @@ export const XCart = () => {
     }
 
     return (
-        <div className=''>
+        <React.Fragment>
             <div className='flex space-x-5'>
                 <Avatar onClick={() => navigate(`/profile/${6}`)} className='cursor-pointer' alt='' src='https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png' />
                 <div className='w-full'>
@@ -102,6 +102,9 @@ export const XCart = () => {
                     </div>
                 </div>
             </div>
-        </div>
+            <section>
+                <ReplyModal open={openReplyModal} handleClose={handleCloseReplyModal}/>
+            </section>
+        </React.Fragment>
     )
 }
