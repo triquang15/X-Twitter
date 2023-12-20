@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.triquang.exception.UserException;
+import com.triquang.model.Premium;
 import com.triquang.model.User;
 import com.triquang.repository.UserRepository;
 import com.triquang.request.LoginRequest;
 import com.triquang.request.SignUpRequest;
 import com.triquang.response.AuthResponse;
 import com.triquang.security.TokenProvider;
-import com.triquangservice.UserDetailsServiceImpl;
+import com.triquang.service.CustomUserService;
 
 import jakarta.validation.Valid;
 
@@ -38,20 +39,21 @@ public class AuthController {
 	private TokenProvider tokenProvider;
 
 	@Autowired
-	private UserDetailsServiceImpl userDetailsService;
+	private CustomUserService customUserService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody SignUpRequest signUpRequest)
+	public ResponseEntity<AuthResponse> createUserHandler( @RequestBody SignUpRequest newUser)
 			throws UserException {
 
-		if (userRepository.hasUserWithEmail(signUpRequest.getEmail())) {
-			throw new UserException(String.format("Email %s already been used", signUpRequest.getEmail()));
+		User isUser = userRepository.findByEmail(newUser.getEmail());
+		if (isUser != null) {
+			throw new UserException(String.format("Email %s already been used", isUser));
 		}
 
-		userRepository.save(mapSignUpRequestToUser(signUpRequest));
+		userRepository.save(mapSignUpRequestToUser(newUser));
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(signUpRequest.getEmail(),
-				signUpRequest.getPassword());
+		Authentication authentication = new UsernamePasswordAuthenticationToken(isUser,
+				newUser.getPassword());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		AuthResponse response = extractedJwtResponse(authentication);
@@ -73,15 +75,18 @@ public class AuthController {
 		return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED);
 	}
 
-	private User mapSignUpRequestToUser(SignUpRequest signUpRequest) {
+	private User mapSignUpRequestToUser(SignUpRequest newUser) {
 		User user = new User();
-		user.setEmail(signUpRequest.getEmail());
-		user.setFullName(signUpRequest.getFullName());
-		user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-		user.setLocation(signUpRequest.getLocation());
-		user.setWebsite(signUpRequest.getWebsite());
-		user.setBirthDate(signUpRequest.getBirthDate());
-		user.setPassword(signUpRequest.getPhone());
+		user.setEmail(newUser.getEmail());
+		user.setFullName(newUser.getFullName());
+		user.setPassword(passwordEncoder.encode(newUser.getPassword()));
+		user.setLocation(newUser.getLocation());
+		user.setWebsite(newUser.getWebsite());
+		user.setBirthDate(newUser.getBirthDate());
+		user.setPhone(newUser.getPhone());
+		user.setBackgroundImage(newUser.getBackgroundImage());
+		user.setImage(newUser.getImage());
+		user.setBio(newUser.getBio());		
 		return user;
 	}
 
@@ -92,7 +97,7 @@ public class AuthController {
 	}
 
 	public Authentication authentication(String username, String password) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		UserDetails userDetails = customUserService.loadUserByUsername(username);
 		if (userDetails == null) {
 			throw new BadCredentialsException("Invalid username");
 		}

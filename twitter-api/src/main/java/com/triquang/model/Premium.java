@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class Premium {
-	private boolean status = false;
+public class Premium {	
 	private LocalDateTime startedAt;
-	private LocalDateTime enddAt;
+	private LocalDateTime endAt;
 	private String planType;
+	private Boolean status = false;
 
 }

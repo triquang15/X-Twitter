@@ -12,8 +12,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	public User findByEmail(String email);
 	
-	 boolean hasUserWithEmail(String email);
-	
 	@Query("SELECT DISTINCT u FROM User u WHERE u.fullName LIKE %:keyword% OR u.email LIKE %:keyword%")
 	public List<User> searchUser(@Param("keyword") String keyword);
 }

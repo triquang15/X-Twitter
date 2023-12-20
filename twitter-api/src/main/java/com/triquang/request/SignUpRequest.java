@@ -6,26 +6,25 @@ import lombok.Data;
 
 @Data
 public class SignUpRequest {
-
-	@Email
-	private String email;
-	
-	@NotBlank
-	private String password;
-	
 	@NotBlank
 	private String fullName;
-	
 	@NotBlank
 	private String location;
-	
 	@NotBlank
 	private String website;
-	
 	@NotBlank
 	private String birthDate;
 
+	@Email
+	private String email;
+	@NotBlank
+	private String password;
 	@NotBlank
 	private String phone;
-
+	@NotBlank
+	private String image;
+	@NotBlank
+	private String backgroundImage;
+	@NotBlank
+	private String bio;
 }

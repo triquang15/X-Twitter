@@ -1,5 +1,6 @@
 package com.triquang.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class Post {
 	private List<Like> likes = new ArrayList<>();
 
 	@OneToMany
-	private List<Like> repPosts = new ArrayList<>();
+	private List<Post> repPosts = new ArrayList<>();
 
 	@ManyToMany
 	private List<User> rePostUsers = new ArrayList<>();
@@ -44,5 +45,7 @@ public class Post {
 	
 	private boolean isReply;
 	private boolean isPost;
+	private LocalDateTime createdAt;
+	
 
 }
