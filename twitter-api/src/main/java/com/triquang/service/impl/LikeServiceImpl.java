@@ -48,7 +48,7 @@ public class LikeServiceImpl implements LikeService {
 	@Override
 	public List<Like> getAllLikes(Long postId) throws PostException {
 		Post post = postService.findById(postId);
-		List<Like> likes = likeRepository.findByPostId(postId);
+		List<Like> likes = likeRepository.findByPostId(post.getId());
 		
 		return likes;
 	}

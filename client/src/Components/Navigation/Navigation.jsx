@@ -3,10 +3,13 @@ import { navigationMenu } from "./Menu";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../Store/Auth/Action";
 
 
 export const Navigation = () => {
-
+  const {auth} = useSelector(store=> store)
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -20,6 +23,7 @@ export const Navigation = () => {
   const handleLogout = ()=> {
     console.log("Logout");
     handleClose();
+    dispatch(logoutUser())
   }
 
   return (
@@ -64,8 +68,8 @@ export const Navigation = () => {
             <Avatar alt="accounts" src="https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png"/>
         </div>
         <div>
-            <span>Tri Quang Nguyen</span> <br />
-            <span className="opacity-60">@qnguyen95</span>
+            <span>{auth.user?.fullName}</span> <br />
+            <span className="opacity-60">@{auth.user?.fullName.split(" ").join("_").toLowerCase()}</span>
         </div>
        
         <Button

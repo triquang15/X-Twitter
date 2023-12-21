@@ -15,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.triquang.exception.UserException;
-import com.triquang.model.Premium;
 import com.triquang.model.User;
 import com.triquang.repository.UserRepository;
 import com.triquang.request.LoginRequest;
-import com.triquang.request.SignUpRequest;
 import com.triquang.response.AuthResponse;
 import com.triquang.security.TokenProvider;
 import com.triquang.service.CustomUserService;
@@ -42,18 +40,27 @@ public class AuthController {
 	private CustomUserService customUserService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler( @RequestBody SignUpRequest newUser)
+	public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user)
 			throws UserException {
 
-		User isUser = userRepository.findByEmail(newUser.getEmail());
+		String email = user.getEmail();
+		String fullName = user.getFullName();
+		String password = user.getPassword();
+		String birthDate = user.getBirthDate();
+
+		User isUser = userRepository.findByEmail(email);
 		if (isUser != null) {
-			throw new UserException(String.format("Email %s already been used", isUser));
+			throw new UserException("Email is used with another account " + email);
 		}
+		User newUser = new User();
+		newUser.setEmail(email);
+		newUser.setFullName(fullName);
+		newUser.setPassword(passwordEncoder.encode(password));
+		newUser.setBirthDate(birthDate);
 
-		userRepository.save(mapSignUpRequestToUser(newUser));
+		userRepository.save(newUser);
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(isUser,
-				newUser.getPassword());
+		Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		AuthResponse response = extractedJwtResponse(authentication);
@@ -75,20 +82,6 @@ public class AuthController {
 		return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED);
 	}
 
-	private User mapSignUpRequestToUser(SignUpRequest newUser) {
-		User user = new User();
-		user.setEmail(newUser.getEmail());
-		user.setFullName(newUser.getFullName());
-		user.setPassword(passwordEncoder.encode(newUser.getPassword()));
-		user.setLocation(newUser.getLocation());
-		user.setWebsite(newUser.getWebsite());
-		user.setBirthDate(newUser.getBirthDate());
-		user.setPhone(newUser.getPhone());
-		user.setBackgroundImage(newUser.getBackgroundImage());
-		user.setImage(newUser.getImage());
-		user.setBio(newUser.getBio());		
-		return user;
-	}
 
 	private AuthResponse extractedJwtResponse(Authentication authentication) {
 		String jwt = tokenProvider.generateToken(authentication);

@@ -7,13 +7,13 @@ import com.triquang.dto.PostDto;
 import com.triquang.dto.UserDto;
 import com.triquang.model.Post;
 import com.triquang.model.User;
-import com.triquang.utils.PostUtil;
+import com.triquang.utils.Utilities;
 
 public class PostDtoMapper {
 	public static PostDto toPostDto(Post post, User reqUser) {
 		UserDto userDto = UserDtoMapper.toUserDto(post.getUser());
-		boolean isLiked = PostUtil.isLikedByReqUser(reqUser, post);
-		boolean isRePosted = PostUtil.rePostByReqUser(reqUser, post);
+		boolean isLiked = Utilities.isLikedByReqUser(reqUser, post);
+		boolean isRePosted = Utilities.rePostByReqUser(reqUser, post);
 
 		List<Long> rePostUserId = new ArrayList<>();
 		for (User user : post.getRePostUsers()) {
@@ -50,8 +50,8 @@ public class PostDtoMapper {
 
 	private static PostDto toReplyPostDto(Post post, User userReq) {
 		UserDto userDto = UserDtoMapper.toUserDto(post.getUser());
-		boolean isLiked = PostUtil.isLikedByReqUser(userReq, post);
-		boolean isRePosted = PostUtil.rePostByReqUser(userReq, post);
+		boolean isLiked = Utilities.isLikedByReqUser(userReq, post);
+		boolean isRePosted = Utilities.rePostByReqUser(userReq, post);
 
 		List<Long> rePostUserId = new ArrayList<>();
 		for (User user : post.getRePostUsers()) {
