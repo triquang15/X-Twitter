@@ -10,8 +10,10 @@ import com.triquang.model.User;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
+	@Query("SELECT p FROM Post p WHERE p.isPost = TRUE ORDER BY p.createdAt DESC")
 	List<Post> findAllByIsPostTrueOrderByCreatedAtDesc();
 
+	@Query("SELECT p FROM Post p WHERE p.isPost = TRUE ORDER BY p.createdAt DESC")
 	List<Post> findByRePostUsersContainsOrUser_IdAndIsPostTrueOrderByCreatedAtDesc(User user, Long userId);
 	
 	List<Post> findByLikesOrderByCreatedAtDesc(User user);

@@ -70,12 +70,6 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public Post removeRePost(Long postId, User user) throws UserException, PostException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Post createReply(PostReplyRequest req, User user) throws PostException {
 		Post replyFor = findById(req.getPostId());
 

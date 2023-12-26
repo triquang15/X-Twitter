@@ -14,7 +14,9 @@ root.render(
     <BrowserRouter>
       <Provider store={store}>
         <GoogleOAuthProvider>
+       
           <App />
+   
         </GoogleOAuthProvider>
       </Provider>
     </BrowserRouter>

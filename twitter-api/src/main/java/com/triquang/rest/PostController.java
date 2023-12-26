@@ -57,7 +57,7 @@ public class PostController {
 
 		PostDto postDto = PostDtoMapper.toPostDto(post, user);
 
-		return new ResponseEntity<>(postDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(postDto, HttpStatus.OK);
 
 	}
 

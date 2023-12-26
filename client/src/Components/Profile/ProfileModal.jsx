@@ -6,6 +6,9 @@ import { useFormik } from 'formik';
 import { Avatar, IconButton, TextField } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import './ProfileModal.css';
+import { updateUser } from '../../Store/Auth/Action';
+import { useDispatch, useSelector } from 'react-redux';
+import { uploadToCloudinary } from '../../Utilities/UploadFileToCloud';
 
 const style = {
     position: 'absolute',
@@ -23,9 +26,15 @@ const style = {
 
 export default function KeepMountedModal({open, handleClose}) {
     const [uploadImage, setUploadImage] = React.useState(false);
+    const dispatch = useDispatch()
+    const [selectImage, setSelectImage] = React.useState("");
+    const {auth} = useSelector(store => store);
+
 
     const handleSubmit = (values) => {
+        dispatch(updateUser(values))
         console.log('handleSubmit', values);
+        setSelectImage("")
     }
 
     const formik = useFormik({
@@ -40,11 +49,12 @@ export default function KeepMountedModal({open, handleClose}) {
         onSubmit: handleSubmit
     })
 
-    const handleChangeImage = (e) => {
+    const handleChangeImage = async(e) => {
         setUploadImage(true);
         const { name } = e.target
-        const file = e.target.files[0];
+        const file = await uploadToCloudinary(e.target.files[0])
         formik.setFieldValue(name, file);
+        setSelectImage(file)
         setUploadImage(false);
     }
 
@@ -73,14 +83,14 @@ export default function KeepMountedModal({open, handleClose}) {
                                 <div className='w-full'>
                                     <div className='relative'>
                                         <img className='w-full h-[12rem] object-cover object-center'
-                                            src="https://cdn.pixabay.com/photo/2023/12/09/15/04/dog-8439530_1280.jpg" alt="" />
-                                        <input onChange={handleChangeImage} type="file" className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer' name='backgroundImage' />
+                                            src={selectImage || auth.user?.backgroundImage} alt="" />
+                                        <input onChange={handleChangeImage} type="file" name='backgroundImage' className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer'  />
                                     </div>
                                 </div>
                                 <div className='w-full transform -translate-y-20 ml-4 h-[6rem]'>
                                     <div className='relative'>
                                         <Avatar sx={{width:'10rem', height:'10rem', border:'4px solid white'}}
-                                         src='https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png'/>
+                                         src={selectImage || auth.user?.image}/>
                                          <input onChange={handleChangeImage} name='image' type="file"
                                          className='absolute top-0 left-0 w-[10rem h-full opacity-0 cursor-pointer]' />
                                     </div>

@@ -65,7 +65,7 @@ public class AuthController {
 
 		AuthResponse response = extractedJwtResponse(authentication);
 
-		return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED);
+		return new ResponseEntity<AuthResponse>(response, HttpStatus.CREATED);
 
 	}
 

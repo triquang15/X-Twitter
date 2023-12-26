@@ -50,7 +50,7 @@ export const Navigation = () => {
                 className="text-xl"
                 onClick={() =>
                   item.title === "Profile"
-                    ? navigate(`/profile/${5}`)
+                    ? navigate(`/profile/${auth.user?.id}`)
                     : navigate(item.path)
                 }
               >
@@ -65,7 +65,7 @@ export const Navigation = () => {
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-            <Avatar alt="accounts" src="https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png"/>
+            <Avatar alt="accounts" src={auth.user?.image}/>
         </div>
         <div>
             <span>{auth.user?.fullName}</span> <br />

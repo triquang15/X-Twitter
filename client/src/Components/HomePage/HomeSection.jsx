@@ -1,11 +1,14 @@
 import { Avatar, Button } from '@mui/material'
 import { useFormik } from 'formik'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import ImageIcon from '@mui/icons-material/Image';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { XCart } from './XCart';
+import { useDispatch, useSelector } from 'react-redux';
+import { createPost, getAllPosts } from '../../Store/Post/Action';
+import { uploadToCloudinary } from '../../Utilities/UploadFileToCloud';
 
 const validationSchema = Yup.object().shape({
     content: Yup.string().required("Field is required")
@@ -14,9 +17,14 @@ const validationSchema = Yup.object().shape({
 export const HomeSection = () => {
     const [uploadImage, setUploadImage] = useState(false);
     const [selectImage, setSelectImage] = useState("");
+    const dispatch = useDispatch();
+    const {post} = useSelector(store => store)
 
-    const handleSubmit = (value) => {
+    const handleSubmit = (value, action) => {
+        dispatch(createPost(value))
+        action.resetForm()
         console.log("Value ", value);
+        setSelectImage("")
     }
 
     const formik = useFormik({
@@ -28,13 +36,17 @@ export const HomeSection = () => {
         validationSchema,
     })
 
-    const handleSelectImage = (e) => {
+    const handleSelectImage = async(e) => {
         setUploadImage(true);
-        const imageUrl = e.target.files[0]
+        const imageUrl = await uploadToCloudinary(e.target.files[0])
         formik.setFieldValue("image", imageUrl);
         setSelectImage(imageUrl);
         setUploadImage(false);
     }
+
+    useEffect(() => {
+        dispatch(getAllPosts())
+    },[post.like, post.repost])
 
     return (
         <div className='space-y-5'>
@@ -68,11 +80,14 @@ export const HomeSection = () => {
                                 </div>
                             </div>
                         </form>
+                        <div>
+                           {selectImage && <img src={selectImage} alt="" />}
+                        </div>
                     </div>
                 </div>
             </section>
             <section>
-                {[1,1,1,1,1,1].map((item) => <XCart/>)}
+                {post.posts?.map((item) => <XCart item={item}/>)}
             </section>
         </div>
     )

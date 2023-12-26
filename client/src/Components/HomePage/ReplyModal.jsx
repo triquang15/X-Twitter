@@ -9,6 +9,8 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { useFormik } from 'formik';
 import * as Yup from 'yup'
+import { useDispatch } from 'react-redux';
+import { replyPost } from '../../Store/Post/Action';
 
 const style = {
     position: 'absolute',
@@ -28,20 +30,24 @@ const validationSchema = Yup.object().shape({
     content: Yup.string().required("Field is required")
 })
 
-export default function ReplyModal({handleClose, open}) {
+export default function ReplyModal({handleClose, open, item}) {
     const navigate = useNavigate();
     const [uploadImage, setUploadImage] = React.useState(false);
     const [selectImage, setSelectImage] = React.useState("");
+    const dispatch = useDispatch();
 
-    const handleSubmit = (value) => {
-        console.log("Value ", value);
+    const handleSubmit = (values) => {
+        dispatch(replyPost(values))
+        console.log("Values ", values);
+        handleClose()
+        
     }
 
     const formik = useFormik({
         initialValues: {
             content: "",
             image: "",
-            postId: 4
+            postId: item?.id
         },
         onSubmit: handleSubmit,
         validationSchema,
