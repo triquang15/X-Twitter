@@ -11,131 +11,83 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.triquang.dto.PostDto;
-import com.triquang.dto.mapper.PostDtoMapper;
 import com.triquang.exception.PostException;
 import com.triquang.exception.UserException;
 import com.triquang.model.Post;
-import com.triquang.model.User;
-import com.triquang.request.PostReplyRequest;
 import com.triquang.response.ApiResponse;
 import com.triquang.service.PostService;
-import com.triquang.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import static com.triquang.config.SwaggerConfig.BEARER_KEY_SECURITY_SCHEME;
 
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
+
 	@Autowired
 	private PostService postService;
 
-	@Autowired
-	private UserService userService;
-
-	@PostMapping("/create")
-	public ResponseEntity<PostDto> createPost(@RequestBody Post req, @RequestHeader("Authorization") String jwt)
-			throws UserException {
-
-		User user = userService.findUserProfile(jwt);
-		Post post = postService.createPost(req, user);
-
-		PostDto postDto = PostDtoMapper.toPostDto(post, user);
-
-		return new ResponseEntity<>(postDto, HttpStatus.CREATED);
-
-	}
-
-	@PostMapping("/reply")
-	public ResponseEntity<PostDto> replyPost(@RequestBody PostReplyRequest req,
-			@RequestHeader("Authorization") String jwt) throws UserException, PostException {
-
-		User user = userService.findUserProfile(jwt);
-		Post post = postService.createReply(req, user);
-
-		PostDto postDto = PostDtoMapper.toPostDto(post, user);
-
-		return new ResponseEntity<>(postDto, HttpStatus.OK);
-
-	}
-
-	@PutMapping("/{postId}/repost")
-	public ResponseEntity<PostDto> rePostHandler(@PathVariable Long postId, @RequestHeader("Authorization") String jwt)
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@PostMapping("/create/user/{userId}")
+	public ResponseEntity<Post> createPost(@RequestBody Post post, @PathVariable Integer userId)
 			throws UserException, PostException {
+		Post createPost = postService.createPost(post, userId);
 
-		User user = userService.findUserProfile(jwt);
-		Post post = postService.rePost(postId, user);
-
-		PostDto postDto = PostDtoMapper.toPostDto(post, user);
-
-		return new ResponseEntity<>(postDto, HttpStatus.OK);
-
+		return new ResponseEntity<>(createPost, HttpStatus.CREATED);
 	}
 
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@DeleteMapping("/{postId}/user/{userId}")
+	public ResponseEntity<ApiResponse> deletePost(@PathVariable Integer postId, @PathVariable Integer userId)
+			throws UserException, PostException {
+		String message = postService.deletePost(postId, userId);
+		ApiResponse response = new ApiResponse(message, false);
+
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+	}
+
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
 	@GetMapping("/{postId}")
-	public ResponseEntity<PostDto> findPostById(@PathVariable Long postId, @RequestHeader("Authorization") String jwt)
-			throws UserException, PostException {
-
-		User user = userService.findUserProfile(jwt);
-		Post post = postService.findById(postId);
-
-		PostDto postDto = PostDtoMapper.toPostDto(post, user);
-
-		return new ResponseEntity<>(postDto, HttpStatus.OK);
+	public ResponseEntity<Post> findPostById(@PathVariable Integer postId) throws PostException {
+		Post post = postService.findPostById(postId);
+		return new ResponseEntity<Post>(post, HttpStatus.ACCEPTED);
 
 	}
 
-	@DeleteMapping("/{postId}")
-	public ResponseEntity<ApiResponse> deletePostHandler(@PathVariable Long postId,
-			@RequestHeader("Authorization") String jwt) throws UserException, PostException {
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<List<Post>> findUserPost(@PathVariable Integer userId) throws UserException {
+		List<Post> posts = postService.findPostByUserId(userId);
 
-		User user = userService.findUserProfile(jwt);
-		postService.deletePostById(postId, user.getId());
-
-		ApiResponse response = new ApiResponse("Post deleted successfully", true);
-
-		return new ResponseEntity<>(response, HttpStatus.OK);
-
+		return new ResponseEntity<List<Post>>(posts, HttpStatus.OK);
 	}
 
-	@GetMapping("/")
-	public ResponseEntity<List<PostDto>> getAllPosts(@RequestHeader("Authorization") String jwt)
-			throws UserException, PostException {
-
-		User user = userService.findUserProfile(jwt);
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@GetMapping
+	public ResponseEntity<List<Post>> findAllPost() throws PostException {
 		List<Post> posts = postService.findAllPost();
 
-		List<PostDto> postDtos = PostDtoMapper.toPostDtos(posts, user);
+		return new ResponseEntity<List<Post>>(posts, HttpStatus.OK);
+	}
 
-		return new ResponseEntity<>(postDtos, HttpStatus.OK);
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@PutMapping("/{postId}/user/{userId}")
+	public ResponseEntity<Post> savePostHandler(@PathVariable Integer postId, @PathVariable Integer userId)
+			throws PostException, UserException {
+		Post post = postService.savePost(postId, userId);
+		return new ResponseEntity<Post>(post, HttpStatus.ACCEPTED);
 
 	}
 
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<PostDto>> getUserAllPosts(@PathVariable Long userId,
-			@RequestHeader("Authorization") String jwt) throws UserException, PostException {
-
-		User user = userService.findUserProfile(jwt);
-		List<Post> posts = postService.getUserPost(user);
-
-		List<PostDto> postDtos = PostDtoMapper.toPostDtos(posts, user);
-
-		return new ResponseEntity<>(postDtos, HttpStatus.OK);
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@PutMapping("/like/{postId}/user/{userId}")
+	public ResponseEntity<Post> likePostHandler(@PathVariable Integer postId, @PathVariable Integer userId)
+			throws PostException, UserException {
+		Post post = postService.likePost(postId, userId);
+		return new ResponseEntity<Post>(post, HttpStatus.ACCEPTED);
 
 	}
-
-	@GetMapping("/user/{userId}/likes")
-	public ResponseEntity<List<PostDto>> findPostByLikesContainersUser(@PathVariable Long userId,
-			@RequestHeader("Authorization") String jwt) throws UserException, PostException {
-
-		User user = userService.findUserProfile(jwt);
-		List<Post> posts = postService.findByLikesUser(user);
-		List<PostDto> postDtos = PostDtoMapper.toPostDtos(posts, user);
-
-		return new ResponseEntity<>(postDtos, HttpStatus.OK);
-
-	}
-
 }

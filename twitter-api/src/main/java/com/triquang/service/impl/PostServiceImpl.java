@@ -2,6 +2,7 @@ package com.triquang.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,94 +12,91 @@ import com.triquang.exception.UserException;
 import com.triquang.model.Post;
 import com.triquang.model.User;
 import com.triquang.repository.PostRepository;
-import com.triquang.request.PostReplyRequest;
+import com.triquang.repository.UserRepository;
 import com.triquang.service.PostService;
+import com.triquang.service.UserService;
 
 @Service
 public class PostServiceImpl implements PostService {
-
 	@Autowired
 	private PostRepository postRepository;
 
-	@Override
-	public Post createPost(Post req, User user) throws UserException {
-		Post post = new Post();
-		post.setContent(req.getContent());
-		post.setCreatedAt(LocalDateTime.now());
-		post.setImage(req.getImage());
-		post.setUser(user);
-		post.setReply(false);
-		post.setPost(true);
-		post.setVideo(req.getVideo());
+	@Autowired
+	private UserService userService;
 
-		return postRepository.save(post);
+	@Autowired
+	private UserRepository userRepository;
+
+	@Override
+	public Post createPost(Post post, Integer userId) throws UserException, PostException {
+
+		Post newPost = new Post();
+
+		newPost.setContent(post.getContent());
+		newPost.setImage(post.getImage());
+		newPost.setVideo(post.getVideo());
+		newPost.setCreatedAt(LocalDateTime.now());
+		newPost.setUser(userService.findUserById(userId));
+
+		return postRepository.save(newPost);
 	}
 
 	@Override
-	public List<Post> findAllPost() {
-
-		return postRepository.findAllByIsPostTrueOrderByCreatedAtDesc();
-	}
-
-	@Override
-	public Post rePost(Long postId, User user) throws UserException, PostException {
-		Post post = findById(postId);
-		if (post.getRePostUsers().contains(user)) {
-			post.getRePostUsers().remove(user);
-		} else {
-			post.getRePostUsers().add(user);
+	public String deletePost(Integer postId, Integer userId) throws UserException, PostException {
+		Post post = findPostById(postId);
+		User user = userService.findUserById(userId);
+		if (post.getUser().getId() != user.getId()) {
+			throw new PostException("Can't delete user post");
 		}
-		return postRepository.save(post);
+		postRepository.delete(post);
+
+		return "Post deleted successfully";
 	}
 
 	@Override
-	public Post findById(Long postId) throws PostException {
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> new PostException("Post not found with id " + postId));
+	public List<Post> findPostByUserId(Integer userId) throws UserException {
+
+		return postRepository.findPostByUserId(userId);
+	}
+
+	@Override
+	public Post findPostById(Integer postId) throws PostException {
+		Optional<Post> optional = postRepository.findById(postId);
+		if (optional.isEmpty()) {
+			throw new PostException("Post not found with ID: " + postId);
+		}
+		return optional.get();
+	}
+
+	@Override
+	public List<Post> findAllPost() throws PostException {
+		return postRepository.findAll();
+	}
+
+	@Override
+	public Post savePost(Integer postId, Integer userId) throws UserException, PostException {
+		Post post = findPostById(postId);
+		User user = userService.findUserById(userId);
+
+		if (user.getSavedPost().contains(post)) {
+			user.getSavedPost().remove(post);
+		} else {
+			user.getSavedPost().add(post);
+		}
+		userRepository.save(user);
 		return post;
 	}
 
 	@Override
-	public void deletePostById(Long postId, Long userId) throws UserException, PostException {
-		Post post = findById(postId);
-		if (!userId.equals(post.getUser().getId())) {
-			throw new UserException("You can't delete another user post");
+	public Post likePost(Integer postId, Integer userId) throws UserException, PostException {
+		Post post = findPostById(postId);
+		User user = userService.findUserById(userId);
+
+		if (post.getLikedPost().contains(user)) {
+			post.getLikedPost().remove(user);
+		} else {
+			post.getLikedPost().add(user);
 		}
-
-		postRepository.deleteById(post.getId());
-
+		return postRepository.save(post);
 	}
-
-	@Override
-	public Post createReply(PostReplyRequest req, User user) throws PostException {
-		Post replyFor = findById(req.getPostId());
-
-		Post post = new Post();
-		post.setContent(req.getContent());
-		post.setCreatedAt(LocalDateTime.now());
-		post.setImage(req.getImage());
-		post.setUser(user);
-		post.setReply(true);
-		post.setPost(false);
-		post.setReplyFor(replyFor);
-
-		Post savedReply = postRepository.save(post);
-		post.getRepPosts().add(savedReply);
-		postRepository.save(replyFor);
-
-		return replyFor;
-	}
-
-	@Override
-	public List<Post> getUserPost(User user) {
-		
-		return postRepository.findByRePostUsersContainsOrUser_IdAndIsPostTrueOrderByCreatedAtDesc(user, user.getId());
-	}
-
-	@Override
-	public List<Post> findByLikesUser(User user) {
-		
-		return postRepository.findByLikesUserId(user.getId());
-	}
-
 }

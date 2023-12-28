@@ -1,6 +1,7 @@
 package com.triquang.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,78 +9,73 @@ import org.springframework.stereotype.Service;
 import com.triquang.exception.UserException;
 import com.triquang.model.User;
 import com.triquang.repository.UserRepository;
-import com.triquang.security.TokenProvider;
 import com.triquang.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
+
 	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private TokenProvider tokenProvider;
+	@Override
+	public User registerUser(User user) {
+		return userRepository.save(user);
+
+	}
 
 	@Override
-	public User findUserById(Long userId) throws UserException {
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new UserException("User not found with id " + userId));
-		return user;
+	public User findUserById(Integer userId) throws UserException {
+		Optional<User> optional = userRepository.findById(userId);
+		if (optional.isPresent()) {
+			return optional.get();
+		}
+		throw new UserException("User not exits with ID: " + userId);
+	}
+
+	@Override
+	public User findUserByEmail(String email) throws UserException {
+
+		return userRepository.findByEmail(email);
+	}
+
+	@Override
+	public User followUser(Integer userId1, Integer userId2) throws UserException {
+		User user1 = findUserById(userId1);
+		User user2 = findUserById(userId2);
+
+		user2.getFollowers().add(user1.getId());
+		user1.getFollowings().add(user2.getId());
+
+		userRepository.save(user1);
+		userRepository.save(user2);
+
+		return user1;
+	}
+
+	@Override
+	public User updateUser(User user, Integer userId) throws UserException {
+		Optional<User> optional = userRepository.findById(userId);
+		if (optional.isEmpty()) {
+			throw new UserException("User not exist with ID: " + userId);
+		}
+
+		User oldUser = optional.get();
+		if (user.getName() != null) {
+			oldUser.setName(user.getName());
+		}
+		if (user.getEmail() != null) {
+			oldUser.setEmail(user.getEmail());
+		}
+		if (user.getGender() != null) {
+			oldUser.setGender(user.getGender());
+		}
+		return userRepository.save(oldUser);
 	}
 
 	@Override
 	public User findUserProfile(String jwt) throws UserException {
-		String email = tokenProvider.getEmailFromToken(jwt);
-		User user = userRepository.findByEmail(email);
-		if (user == null) {
-			throw new UserException("User not found with email " + email);
-		}
-
-		return user;
-	}
-
-	@Override
-	public User updateUser(Long userId, User req) throws UserException {
-		User user = findUserById(userId);
-		if (req.getFullName() != null) {
-			user.setFullName(req.getFullName());
-		}
-		if (req.getImage() != null) {
-			user.setImage(req.getImage());
-		}
-		if (req.getBackgroundImage() != null) {
-			user.setBackgroundImage(req.getBackgroundImage());
-		}
-		if (req.getBirthDate() != null) {
-			user.setBirthDate(req.getBirthDate());
-		}
-		if (req.getLocation() != null) {
-			user.setLocation(req.getLocation());
-		}
-		if (req.getBio() != null) {
-			user.setBio(req.getBio());
-		}
-		if (req.getPhone() != null) {
-			user.setPhone(req.getPhone());
-		}
-		if (req.getWebsite() != null) {
-			user.setWebsite(req.getWebsite());
-		}
-		return userRepository.save(user);
-	}
-
-	@Override
-	public User followUser(Long userId, User user) throws UserException {
-		User followUser = findUserById(userId);
-		if (user.getFollowings().contains(followUser) && followUser.getFollowers().contains(user)) {
-			user.getFollowings().remove(followUser);
-			followUser.getFollowers().remove(user);
-		} else {
-			user.getFollowings().add(followUser);
-			followUser.getFollowers().add(user);
-		}
-		userRepository.save(followUser);
-		userRepository.save(user);
-		return followUser;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -87,4 +83,35 @@ public class UserServiceImpl implements UserService {
 		return userRepository.searchUser(query);
 	}
 
+	@Override
+	public boolean hasUserWithEmail(String email) {
+		return userRepository.existsByEmail(email);
+	}
+
+	@Override
+	public Optional<User> getUserByUsername(String username) {
+		return userRepository.findByUsername(username);
+	}
+
+	@Override
+	public boolean hasUserWithUsername(String username) {
+		return userRepository.existsByUsername(username);
+	}
+
+	@Override
+	public List<User> getUsers() {
+		return userRepository.findAll();
+	}
+
+	@Override
+	public User validateAndGetUserByUsername(String username) {
+		return getUserByUsername(username)
+				.orElseThrow(() -> new UserException(String.format("User with username %s not found", username)));
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		userRepository.delete(user);
+
+	}
 }

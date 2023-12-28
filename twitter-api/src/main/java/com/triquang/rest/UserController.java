@@ -1,85 +1,94 @@
 package com.triquang.rest;
 
+import static com.triquang.config.SwaggerConfig.BEARER_KEY_SECURITY_SCHEME;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.triquang.dto.UserDto;
-import com.triquang.dto.mapper.UserDtoMapper;
 import com.triquang.exception.UserException;
 import com.triquang.model.User;
+import com.triquang.rest.dto.UserDto;
+import com.triquang.security.CustomUserDetails;
 import com.triquang.service.UserService;
-import com.triquang.utils.Utilities;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
 	@Autowired
 	private UserService userService;
 
-	@GetMapping("/profile")
-	public ResponseEntity<UserDto> getUserProfile(@RequestHeader("Authorization") String jwt) throws UserException {
-		User user = userService.findUserProfile(jwt);
-		UserDto userDto = UserDtoMapper.toUserDto(user);
-		userDto.setReq_user(true);
+	@Autowired
+	private com.triquang.model.mapper.UserMapper userMapper;
 
-		return new ResponseEntity<UserDto>(userDto, HttpStatus.ACCEPTED);
-
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@GetMapping("/me")
+	public UserDto getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
+		User user = userService.validateAndGetUserByUsername(currentUser.getUsername());
+		return userMapper.toUserDto(user);
 	}
 
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@GetMapping("/")
+	public List<User> getAllUser() throws UserException {
+		return userService.getUsers();
+	}
+	
+	@Operation(security = {@SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME)})
+    @GetMapping
+    public List<UserDto> getUsers() {
+        return userService.getUsers().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
+    }
+	
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
 	@GetMapping("/{userId}")
-	public ResponseEntity<UserDto> getUserById(@PathVariable Long userId, @RequestHeader("Authorization") String jwt)
-			throws UserException {
-		User userReq = userService.findUserProfile(jwt);
-		User user = userService.findUserById(userId);
-
-		UserDto userDto = UserDtoMapper.toUserDto(user);
-		userDto.setReq_user(Utilities.isReqUser(userReq, user));
-		userDto.setFollowed(Utilities.isFollowedByUser(userReq, user));
-
-		return new ResponseEntity<UserDto>(userDto, HttpStatus.ACCEPTED);
+	public User findUserById(@PathVariable("userId") Integer userId) throws UserException {
+		return userService.findUserById(userId);
 
 	}
 
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@PutMapping("/{userId}")
+	public User updateUserHandler(@RequestBody User user, @PathVariable Integer userId) throws UserException {
+		return userService.updateUser(user, userId);
+
+	}
+
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@PutMapping("/follow/{userId1}/{userId2}")
+	public User followUser(@PathVariable Integer userId1, @PathVariable Integer userId2) throws UserException {
+		return userService.followUser(userId1, userId2);
+
+	}
+
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
 	@GetMapping("/search")
-	public ResponseEntity<List<UserDto>> searchUser(@RequestParam String query) throws UserException {
-		List<User> users = userService.searchUser(query);
-		List<UserDto> userDtos = UserDtoMapper.toUserDto(users);
-
-		return new ResponseEntity<>(userDtos, HttpStatus.ACCEPTED);
+	public List<User> searchUser(@RequestParam("query") String query) {
+		return userService.searchUser(query);
 
 	}
 
-	@PutMapping("/update")
-	public ResponseEntity<UserDto> updateUser(@RequestBody User req, @RequestHeader("Authorization") String jwt)
-			throws UserException {
-		User userReq = userService.findUserProfile(jwt);
-		User user = userService.updateUser(userReq.getId(), req);
-		UserDto userDtos = UserDtoMapper.toUserDto(user);
-
-		return new ResponseEntity<>(userDtos, HttpStatus.ACCEPTED);
-
-	}
-
-	@PutMapping("/{userId}/follow")
-	public ResponseEntity<UserDto> followUser(@PathVariable Long userId, @RequestHeader("Authorization") String jwt)
-			throws UserException {
-		User userReq = userService.findUserProfile(jwt);
-		User user = userService.followUser(userId, userReq);
-		UserDto userDtos = UserDtoMapper.toUserDto(user);
-		userDtos.setFollowed(Utilities.isFollowedByUser(userReq, user));
-
-		return new ResponseEntity<>(userDtos, HttpStatus.ACCEPTED);
-
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@DeleteMapping("/{username}")
+	public com.triquang.rest.dto.UserDto deleteUser(@PathVariable String username) {
+		User user = userService.validateAndGetUserByUsername(username);
+		userService.deleteUser(user);
+		return userMapper.toUserDto(user);
 	}
 }

@@ -1,20 +1,18 @@
 package com.triquang.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class LoginRequest {
 
-	@NotBlank
-	private String email;
+    @Schema(example = "user")
+    @NotBlank
+    private String username;
 
-	@NotBlank
-	private String password;
+    @Schema(example = "user")
+    @NotBlank
+    private String password;
 }
+

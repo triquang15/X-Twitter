@@ -1,104 +1,73 @@
 package com.triquang.rest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.triquang.exception.UserException;
+import com.triquang.exception.DuplicatedUserInfoException;
 import com.triquang.model.User;
-import com.triquang.repository.UserRepository;
 import com.triquang.request.LoginRequest;
+import com.triquang.request.SignUpRequest;
 import com.triquang.response.AuthResponse;
 import com.triquang.security.TokenProvider;
-import com.triquang.service.CustomUserService;
+import com.triquang.security.oauth2.OAuth2Provider;
+import com.triquang.service.UserService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-	@Autowired
-	private UserRepository userRepository;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenProvider tokenProvider;
+ 
+    @PostMapping("/signin")
+    public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest) {
+        String token = authenticateAndGetToken(loginRequest.getUsername(), loginRequest.getPassword());
+        return new AuthResponse(token, true, "Login Successfully");
+    }
 
-	@Autowired
-	private TokenProvider tokenProvider;
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/signup")
+    public AuthResponse signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+        if (userService.hasUserWithUsername(signUpRequest.getUsername())) {
+            throw new DuplicatedUserInfoException(String.format("Username %s already been used", signUpRequest.getUsername()));
+        }
+        if (userService.hasUserWithEmail(signUpRequest.getEmail())) {
+            throw new DuplicatedUserInfoException(String.format("Email %s already been used", signUpRequest.getEmail()));
+        }
 
-	@Autowired
-	private CustomUserService customUserService;
+        userService.registerUser(mapSignUpRequestToUser(signUpRequest));
 
-	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user)
-			throws UserException {
+        String token = authenticateAndGetToken(signUpRequest.getUsername(), signUpRequest.getPassword());
+        return new AuthResponse(token, true, "Register Successfully");
+    }
 
-		String email = user.getEmail();
-		String fullName = user.getFullName();
-		String password = user.getPassword();
-		String birthDate = user.getBirthDate();
+    private String authenticateAndGetToken(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        return tokenProvider.generate(authentication);
+    }
 
-		User isUser = userRepository.findByEmail(email);
-		if (isUser != null) {
-			throw new UserException("Email is used with another account " + email);
-		}
-		User newUser = new User();
-		newUser.setEmail(email);
-		newUser.setFullName(fullName);
-		newUser.setPassword(passwordEncoder.encode(password));
-		newUser.setBirthDate(birthDate);
-
-		userRepository.save(newUser);
-
-		Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		AuthResponse response = extractedJwtResponse(authentication);
-
-		return new ResponseEntity<AuthResponse>(response, HttpStatus.CREATED);
-
-	}
-
-	@PostMapping("/signin")
-	public ResponseEntity<AuthResponse> signInHandler(@Valid @RequestBody LoginRequest req) {
-		String email = req.getEmail();
-		String password = req.getPassword();
-
-		Authentication authentication = authentication(email, password);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		AuthResponse response = extractedJwtResponse(authentication);
-
-		return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED);
-	}
-
-
-	private AuthResponse extractedJwtResponse(Authentication authentication) {
-		String jwt = tokenProvider.generateToken(authentication);
-		AuthResponse response = new AuthResponse(jwt, true);
-		return response;
-	}
-
-	public Authentication authentication(String username, String password) {
-		UserDetails userDetails = customUserService.loadUserByUsername(username);
-		if (userDetails == null) {
-			throw new BadCredentialsException("Invalid username");
-		}
-		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-			throw new BadCredentialsException("Invalid password or username");
-		}
-
-		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-	}
-
+    private User mapSignUpRequestToUser(SignUpRequest signUpRequest) {
+        User user = new User();
+        user.setUsername(signUpRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setName(signUpRequest.getName());
+        user.setEmail(signUpRequest.getEmail());
+        user.setProvider(OAuth2Provider.LOCAL);
+        return user;
+    }
+   
 }

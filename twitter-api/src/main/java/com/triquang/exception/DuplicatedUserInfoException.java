@@ -3,17 +3,15 @@ package com.triquang.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class PostException extends RuntimeException {
+@ResponseStatus(HttpStatus.CONFLICT)
+public class DuplicatedUserInfoException extends RuntimeException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public PostException(String message) {
+	public DuplicatedUserInfoException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
-
 }

@@ -4,48 +4,46 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Post {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	@ManyToOne
-	private User user;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer id;
+	
 	private String content;
 	private String image;
 	private String video;
-
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-	private List<Like> likes = new ArrayList<>();
-
-	@OneToMany
-	private List<Post> repPosts = new ArrayList<>();
-
-	@ManyToMany
-	private List<User> rePostUsers = new ArrayList<>();
-
-	@ManyToOne
-	private Post replyFor;
 	
-	private boolean isReply;
-	private boolean isPost;
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime createdAt;
 	
-
+	@JsonIgnore
+	@ManyToOne
+	private User user;
+	
+	@JsonIgnore
+	@OneToMany
+	private List<User> likedPost = new ArrayList<>();
 }
