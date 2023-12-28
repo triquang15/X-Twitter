@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import com.triquang.exception.UserException;
 import com.triquang.model.User;
 import com.triquang.repository.UserRepository;
+import com.triquang.security.TokenProvider;
 import com.triquang.service.UserService;
 
 @Service
@@ -16,6 +18,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private TokenProvider tokenProvider;
 
 	@Override
 	public User registerUser(User user) {
@@ -30,12 +35,6 @@ public class UserServiceImpl implements UserService {
 			return optional.get();
 		}
 		throw new UserException("User not exits with ID: " + userId);
-	}
-
-	@Override
-	public User findUserByEmail(String email) throws UserException {
-
-		return userRepository.findByEmail(email);
 	}
 
 	@Override
@@ -74,8 +73,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User findUserProfile(String jwt) throws UserException {
-		// TODO Auto-generated method stub
-		return null;
+		String email = tokenProvider.getEmailFromToken(jwt);
+		if (email == null) {
+			throw new BadCredentialsException("Email not found with token ");
+
+		}
+		Optional<User> user = userRepository.findByUsername(email);
+		if (user == null) {
+			throw new UserException("User not found with email " + email);
+
+		}
+		return user.get();
+		
 	}
 
 	@Override

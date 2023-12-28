@@ -81,6 +81,15 @@ public class TokenProvider {
         }
         return Optional.empty();
     }
+    
+    public String getEmailFromToken(String jwt) {
+		jwt = jwt.substring(7);
+		 byte[] signingKey = jwtSecret.getBytes();
+		Claims claims = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(jwt).getBody();
+
+		String username = String.valueOf(claims.get("preferred_username"));
+		return username;
+	}
 
     public static final String TOKEN_TYPE = "JWT";
     public static final String TOKEN_ISSUER = "twitter-api";
