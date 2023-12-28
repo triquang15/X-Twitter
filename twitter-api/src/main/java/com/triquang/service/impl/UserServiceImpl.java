@@ -73,14 +73,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User findUserProfile(String jwt) throws UserException {
-		String email = tokenProvider.getEmailFromToken(jwt);
-		if (email == null) {
-			throw new BadCredentialsException("Email not found with token ");
+		String username = tokenProvider.getEmailFromToken(jwt);
+		if (username == null) {
+			throw new BadCredentialsException("Username not found with token ");
 
 		}
-		Optional<User> user = userRepository.findByUsername(email);
+		Optional<User> user = userRepository.findByUsername(username);
 		if (user == null) {
-			throw new UserException("User not found with email " + email);
+			throw new UserException("User not found with " + username);
 
 		}
 		return user.get();
