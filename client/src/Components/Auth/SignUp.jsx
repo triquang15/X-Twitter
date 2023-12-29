@@ -7,9 +7,10 @@ import { useDispatch } from 'react-redux'
 import { signupUser } from '../../Store/Auth/Action'
 
 const validationSchema = Yup.object().shape({
-    fullName: Yup.string().required("Name is required"),
+    username: Yup.string().required("Username is required"),
+    name: Yup.string().required("Name is required"),
     email: Yup.string().email("Invalid Email").required("Email is required"),
-    password: Yup.string().required("Password is required")
+    password: Yup.string().min(8,"Password must be at least 8 characters").required("Password is required")
 })
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
@@ -33,7 +34,8 @@ export const SignUp = () => {
 
     const formik = useFormik({
         initialValues: {
-            fullName: "",
+            username: "",
+            name: "",
             email: "",
             password: "",
             birthDate: {
@@ -48,7 +50,7 @@ export const SignUp = () => {
             const birthDate = `${year} - ${month} - ${day}`
             values.birthDate = birthDate;
             dispatch(signupUser(values));
-            console.log('Value', values);
+            console.log('Signup Successfully', values);
         }
     })
 
@@ -62,11 +64,17 @@ export const SignUp = () => {
     return (
         <form onSubmit={formik.handleSubmit}>
             <Grid container spacing={2}>
+            <Grid item xs={12}>
+                    <TextField fullWidth label='Userame' type='text' name='username' variant='outlined' size='large'
+                        value={formik.values.username} onChange={formik.handleChange}
+                        onBlur={formik.handleBlur} error={formik.touched.username && Boolean(formik.errors.username)}
+                        helperText={formik.touched.username && formik.errors.username} />
+                </Grid>
                 <Grid item xs={12}>
-                    <TextField fullWidth label='Name' type='text' name='fullName' variant='outlined' size='large'
-                        value={formik.values.fullName} onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} error={formik.touched.fullName && Boolean(formik.errors.fullName)}
-                        helperText={formik.touched.fullName && formik.errors.fullName} />
+                    <TextField fullWidth label='Name' type='text' name='name' variant='outlined' size='large'
+                        value={formik.values.name} onChange={formik.handleChange}
+                        onBlur={formik.handleBlur} error={formik.touched.name && Boolean(formik.errors.name)}
+                        helperText={formik.touched.name && formik.errors.name} />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label='Email' type='email' name='email' variant='outlined' size='large'

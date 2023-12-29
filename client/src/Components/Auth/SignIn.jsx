@@ -7,7 +7,7 @@ import * as Yup from 'yup'
 import { loginUser } from '../../Store/Auth/Action'
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid Email").required("Email is required"),
+    username: Yup.string().required("Username is required"),
     password: Yup.string().required("Password is required")
 })
 export const SignIn = () => {
@@ -15,23 +15,23 @@ export const SignIn = () => {
 
     const formik = useFormik({
         initialValues: {
-            email: "",
+            username: "",
             password: ""
         },
         validationSchema,
         onSubmit: (values) => {
             dispatch(loginUser(values))
-            console.log('Value', values);
+            console.log('Login Sucessfully', values);
         }
     })
     return (
         <form onSubmit={formik.handleSubmit}>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <TextField fullWidth label='Email' type='text' name='email' variant='outlined' size='large'
-                        value={formik.values.email} onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} error={formik.touched.email && Boolean(formik.errors.email)}
-                        helperText={formik.touched.email && formik.errors.email} />
+                    <TextField fullWidth label='Username' type='text' name='username' variant='outlined' size='large'
+                        value={formik.values.username} onChange={formik.handleChange}
+                        onBlur={formik.handleBlur} error={formik.touched.username && Boolean(formik.errors.username)}
+                        helperText={formik.touched.username && formik.errors.username} />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label='Password' name='password' type='password' variant='outlined' size='large'

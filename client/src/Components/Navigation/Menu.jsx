@@ -7,6 +7,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import PendingIcon from "@mui/icons-material/Pending";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 export const navigationMenu = [
   {
@@ -14,10 +15,16 @@ export const navigationMenu = [
     icon: <HomeIcon />,
     path: "/home",
   },
+ 
   {
     title: "Explore",
     icon: <ExploreIcon />,
     path: "/explore",
+  },
+  {
+    title: "Grok",
+    icon: <ControlPointIcon />,
+    path: "/grok",
   },
   {
     title: "Notifications",
@@ -40,7 +47,7 @@ export const navigationMenu = [
     path: "/communities",
   },
   {
-    title: "Verified",
+    title: "Premium",
     icon: <VerifiedIcon />,
     path: "/verified",
   },

@@ -1,7 +1,7 @@
 import React from "react";
 import { navigationMenu } from "./Menu";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { Avatar, Button, Menu, MenuItem } from "@mui/material";
+import { Avatar, Button, Divider, Menu, MenuItem } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../Store/Auth/Action";
@@ -27,12 +27,12 @@ export const Navigation = () => {
   }
 
   return (
-    <div className="h-screen sticky top-0">
-      <div>
-        <div className="py-5">
+    <div className="card h-screen flex flex-col justify-between py-5">
+      <div className="space-y-8 pl-5">
+        <div className="">
           <svg
-            height={30}
-            width={30}
+            height={35}
+            width={35}
             viewBox="0 0 24 24"
             aria-hidden="true"
             class="r-4qtqp9 r-yyyyoo r-dnmrzs r-bnwqim r-1plcrui r-lrvibr r-lrsllp r-1nao33i r-16y2uox r-8kz0gk"
@@ -59,20 +59,17 @@ export const Navigation = () => {
             </div>
           ))}
         </div>
-        <div className="py-10">
-                <Button variant="contained" sx={{width:"50%", borderRadius:"50px", py:"7px", bgcolor:"#00BFFF"}}>Post</Button>
-        </div>
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-            <Avatar alt="accounts" src={auth.user?.image}/>
-        </div>
-        <div>
-            <span>{auth.user?.fullName}</span> <br />
-            <span className="opacity-60">@{auth.user?.fullName.split(" ").join("_").toLowerCase()}</span>
-        </div>
-       
-        <Button
+              <Divider/>
+              <div className="pl-5 flex items-center justify-between pt-5">
+                <div className="flex items-center space-x-3">
+                  <Avatar alt="accounts" src={auth.user?.imageUrl}/>
+                  <div>
+                  <p className="font-bold">{auth.user?.name}</p> 
+                  <p className="opacity-70">@{auth.user?.username.split(" ").join("_").toLowerCase()}</p>
+            </div>
+                </div>
+                <Button
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
@@ -93,7 +90,7 @@ export const Navigation = () => {
         <MenuItem onClick={handleClose}>Add an existing account</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
-      </div>
+              </div>
     </div>
   );
 };

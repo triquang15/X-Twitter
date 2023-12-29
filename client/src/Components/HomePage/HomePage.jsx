@@ -3,28 +3,36 @@ import React from 'react'
 import { Navigation } from '../Navigation/Navigation'
 import { HomeSection } from './HomeSection'
 import { RightPart } from './RightPart'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { Profile } from '../Profile/Profile'
-import { PostDetails } from '../Posts/PostDetails'
+import { CreateReel } from '../Reels/CreateReel'
+import { Reels } from '../Reels/Reels'
 
 export const HomePage = () => {
+  const location = useLocation()
   return (
-    <Grid container xs={12} className='px-5 lg:px-36 justify-between'>
-        <Grid item xs={0} lg={2.5} className='hidden lg:block w-full relative'>
-        <Navigation/>
+    <div className='px-20'>
+      <Grid container spacing={0}>
+        <Grid item xs={0} lg={3}>
+          <div className='sticky top-0'>
+            <Navigation />
+          </div>
         </Grid>
-        <Grid item xs={12} lg={6} className='px-5 lg:px-9 hidden lg:block w-full relative'>
-          <Routes>
+      <Grid lg={location.pathname==='/'?6:6} item className='px-5 flex justify-center'xs={12}>
+      <Routes>
             <Route path='/' element={<HomeSection/>}></Route>
             <Route path='/home' element={<HomeSection/>}></Route>
+            <Route path='/explore' element={<Reels/>}></Route>
+            <Route path='/grok' element={<CreateReel/>}></Route>
             <Route path='/profile/:id' element={<Profile/>}></Route>
-            <Route path='/post/:id' element={<PostDetails/>}></Route>
           </Routes>
-         
-        </Grid>
-        <Grid item xs={0} lg={3} className='hidden lg:block w-full relative'>
-         <RightPart/>
-        </Grid>
-    </Grid>
+      </Grid>
+      <Grid item lg={3} className='relative'>
+        <div className='sticky top-0 w-full'>
+          <RightPart/>
+        </div>
+      </Grid>
+      </Grid>
+    </div>
   )
 }

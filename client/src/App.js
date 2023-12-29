@@ -6,6 +6,7 @@ import { HomePage } from './Components/HomePage/HomePage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { getUserProfile } from './Store/Auth/Action';
+import { Message } from './Components/Messages/Message';
 
 function App() {
   const jwt = localStorage.getItem("jwt")
@@ -24,6 +25,7 @@ function App() {
     <div className="">
         <Routes>
             <Route path='/*' element={auth.user?<HomePage/>:<Authentication/>}></Route>
+            <Route path='/messages' element={<Message/>}></Route>
         </Routes>
     </div>
   );

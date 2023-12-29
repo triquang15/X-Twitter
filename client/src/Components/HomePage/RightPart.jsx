@@ -2,8 +2,9 @@ import React from 'react'
 import SearchIcon from '@mui/icons-material/Search';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { Button } from '@mui/material';
+import { Button, Card } from '@mui/material';
 import SubscribeModal from '../Subscribe/SubscribeModal';
+import { PopularUser } from '../Post/PopularUser';
 
 export const RightPart = () => {
     const [openSubscribeModal, setOpenSubscribeModal] = React.useState(false);
@@ -23,12 +24,20 @@ export const RightPart = () => {
             </div>
             <Brightness4Icon className='ml-3 cursor-pointer' onClick={handleChangeTheme}/>
         </div>
-        <section className='my-5'>
+       <br />
+        <Card className='p-5'>
             <h1 className='text-xl font-bold'>Subscribe to Premium</h1>
             <h1 className='font-semibold my-2'>Subscribe to unlock new features and if eligible, receive a share of ads revenue.</h1>
             <Button onClick={handleOpenSubscribeModal} variant='contained' sx={{padding:"10px", paddingX:'20px', borderRadius:'25px', bgcolor: "#00BFFF"}}>Subscribe</Button>
-        </section>
-        <section className='mt-7 space-y-5'>
+        </Card> <br />
+        <Card className='p-5'>
+        <h1 className='font-bold text-xl py-1'>Who to follow</h1>
+        <div>
+          {[1,1,1,1,].map((item) => <PopularUser/>)}  
+        </div>
+        </Card>
+       <br />
+        <Card className='p-5'>
             <h1 className='font-bold text-xl py-1'>Trends for you</h1>
             {[1,1,1,1].map((item) =>  <div className='flex justify-between w-full'>
            <div>
@@ -38,7 +47,7 @@ export const RightPart = () => {
             </div>
             <MoreHorizIcon/>
             </div>)}     
-        </section>
+        </Card>
         <section>
             <SubscribeModal open={openSubscribeModal} handleClose={handleCloseSubscribeModal}/>
         </section>

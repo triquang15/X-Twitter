@@ -1,94 +1,61 @@
-import { Avatar, Button } from '@mui/material'
+import { Avatar, Button, Card, IconButton } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import ImageIcon from '@mui/icons-material/Image';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
-import TagFacesIcon from '@mui/icons-material/TagFaces';
-import { XCart } from './XCart';
-import { useDispatch, useSelector } from 'react-redux';
-import { createPost, getAllPosts } from '../../Store/Post/Action';
-import { uploadToCloudinary } from '../../Utilities/UploadFileToCloud';
-
-const validationSchema = Yup.object().shape({
-    content: Yup.string().required("Field is required")
-})
+import AddIcon from '@mui/icons-material/Add';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import ArticleIcon from '@mui/icons-material/Article';
+import { StoryCircle } from './StoryCircle';
+import { PostCard } from '../Post/PostCard';
 
 export const HomeSection = () => {
-    const [uploadImage, setUploadImage] = useState(false);
-    const [selectImage, setSelectImage] = useState("");
-    const dispatch = useDispatch();
-    const {post} = useSelector(store => store)
 
-    const handleSubmit = (value, action) => {
-        dispatch(createPost(value))
-        action.resetForm()
-        console.log("Value ", value);
-        setSelectImage("")
+    const handleOpenPostModal = () => {
+        console.log("handleOpenPostModal........");
     }
-
-    const formik = useFormik({
-        initialValues: {
-            content: "",
-            image: ""
-        },
-        onSubmit: handleSubmit,
-        validationSchema,
-    })
-
-    const handleSelectImage = async(e) => {
-        setUploadImage(true);
-        const imageUrl = await uploadToCloudinary(e.target.files[0])
-        formik.setFieldValue("image", imageUrl);
-        setSelectImage(imageUrl);
-        setUploadImage(false);
-    }
-
-    useEffect(() => {
-        dispatch(getAllPosts())
-    },[post.like, post.repost])
 
     return (
-        <div className='space-y-5'>
-            <section>
-                <h1 className='py-5 text-xl font-bold opacity-90'>For You</h1>
+        <div className='px-2'>
+            <section className='flex items-center p-5 rounded-b-md'>
+                <div className='flex flex-col items-center mr-4 cursor-pointer'>
+                    <Avatar sx={{ width: '5rem', height: '5rem' }}>
+                        <AddIcon sx={{ fontSize: '3rem' }} />                       
+                    </Avatar>
+                    <p>New</p>
+                </div>
+                {[1,1,1,1,1].map((item) => <StoryCircle/>)}
             </section>
-            <section className={`pb-10`}>
-                <div className='flex space-x-5'>
-                    <Avatar alt='username' src='https://cdn.pixabay.com/photo/2017/07/18/23/23/user-2517433_1280.png' />
-                    <div className='w-full'>
-                        <form onSubmit={formik.handleSubmit}>
-                            <div>
-                                <input className={`border-none outline-none text-xl bg-transparent`}
-                                    {...formik.getFieldProps("content")}
-                                    type="text" name='content' placeholder='What is happening?' />
-                                {formik.errors.content && formik.touched.content && (
-                                    <span className='text-red-500'>{formik.errors.content}</span>
-                                )}
-                            </div>
-                            <div className='flex justify-between items-center mt-5'>
-                                <div className='flex space-x-5 items-center'>
-                                    <label className='flex items-center space-x-2 rounded-md cursor-pointer'>
-                                        <ImageIcon className='text-[#1d9bf0]' />
-                                        <input type="file" name='imageFile' className='hidden' onChange={handleSelectImage} />
-                                    </label>
-                                    <FmdGoodIcon className='text-[#1d9bf0]' />
-                                    <TagFacesIcon className='text-[#1d9bf0]' />
-                                </div>
-                                <div>
-                                    <Button type='submit' variant="contained" sx={{ width: "100%", borderRadius: "30px", paddingY: "7px", paddingX: "20px", bgcolor: "#00BFFF" }}>Post</Button>
-                                </div>
-                            </div>
-                        </form>
-                        <div>
-                           {selectImage && <img src={selectImage} alt="" />}
-                        </div>
+            <Card className='p-5 mt-5'>
+                <div className='flex justify-between'>
+                    <Avatar/> 
+                    <input readOnly className='outline-none w-[90%] rounded-full px-5 bg-transparent border-[#3b4054] border' type="text" />
+                </div>
+                <div className='flex justify-center space-x-9 mt-5'>
+                    <div className='flex items-center'>
+                        <IconButton color='primary' onClick={handleOpenPostModal}>
+                            <ImageIcon/>
+                        </IconButton>
+                        <span>Media</span>
+                    </div>
+                    <div className='flex items-center'>
+                        <IconButton color='primary' onClick={handleOpenPostModal}>
+                            <VideocamIcon/>
+                        </IconButton>
+                        <span>Video</span>
+                    </div>
+                    <div className='flex items-center'>
+                        <IconButton color='primary' onClick={handleOpenPostModal}>
+                            <ArticleIcon/>
+                        </IconButton>
+                        <span>Article</span>
                     </div>
                 </div>
-            </section>
-            <section>
-                {post.posts?.map((item) => <XCart item={item}/>)}
-            </section>
+            </Card>
+            <div className='mt-5 space-y-5'>
+                {[1,1,1,1,1].map((item) => <PostCard/>)}
+               
+            </div>
         </div>
     )
 }
