@@ -66,7 +66,7 @@ export const Navigation = () => {
                   <Avatar alt="accounts" src={auth.user?.imageUrl}/>
                   <div>
                   <p className="font-bold">{auth.user?.name}</p> 
-                  <p className="opacity-70">@{auth.user?.username.split(" ").join("_").toLowerCase()}</p>
+                  <p className="opacity-70">@{auth.user?.username}</p>
             </div>
                 </div>
                 <Button

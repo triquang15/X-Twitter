@@ -33,7 +33,12 @@ public class User {
 	private String email;
 	private String role;
 	private String imageUrl;
-	private String gender;
+	private String birthDate;
+	private String phone;
+	private String backgroundImage;
+	private String bio;
+	private String location;
+	private String website;
 	
 	private List<Integer> followers = new ArrayList<>();
 	private List<Integer> followings = new ArrayList<>();
@@ -54,7 +59,7 @@ public class User {
 		this.email = email;
 		this.role = role;
 		this.imageUrl = imageUrl;
-		this.gender = gender;
+		this.birthDate = gender;
 		this.provider = provider;
 		this.providerId = providerId;
 	}

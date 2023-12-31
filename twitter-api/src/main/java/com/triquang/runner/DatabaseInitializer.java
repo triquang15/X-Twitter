@@ -37,11 +37,11 @@ public class DatabaseInitializer implements CommandLineRunner {
     }
 
     private static final List<User> USERS = Arrays.asList(
-            new User("triquang95", "12345678", "Tri Quang", "triquang@gmail.com", WebSecurityConfig.ADMIN, "https://cdn.pixabay.com/photo/2023/10/05/17/54/geese-8296524_1280.jpg", "Female", OAuth2Provider.LOCAL, "1"),
-            new User("obama81", "12345678", "Brack Obama1", "abama1@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "Male",OAuth2Provider.LOCAL, "2"),
-            new User("obama82", "12345678", "Brack Obama2", "abama2@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "Male",OAuth2Provider.LOCAL, "2"),
-            new User("obama83", "12345678", "Brack Obama3", "abama3@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "Male",OAuth2Provider.LOCAL, "2"),
-            new User("obama84", "12345678", "Brack Obama4", "abama4@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "Male",OAuth2Provider.LOCAL, "2")
+            new User("triquang95", "12345678", "Tri Quang", "triquang@gmail.com", WebSecurityConfig.ADMIN, "https://cdn.pixabay.com/photo/2023/10/05/17/54/geese-8296524_1280.jpg", "12-09-1990", OAuth2Provider.LOCAL, "1"),
+            new User("obama81", "12345678", "Brack Obama1", "abama1@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "12-09-1990",OAuth2Provider.LOCAL, "2"),
+            new User("obama82", "12345678", "Brack Obama2", "abama2@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "12-09-1990",OAuth2Provider.LOCAL, "2"),
+            new User("obama83", "12345678", "Brack Obama3", "abama3@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "12-09-1990",OAuth2Provider.LOCAL, "2"),
+            new User("obama84", "12345678", "Brack Obama4", "abama4@gmail.com", WebSecurityConfig.USER,"https://cdn.pixabay.com/photo/2023/11/29/12/29/cartoon-8419487_1280.jpg", "12-09-1990",OAuth2Provider.LOCAL, "2")
     );
 
 }

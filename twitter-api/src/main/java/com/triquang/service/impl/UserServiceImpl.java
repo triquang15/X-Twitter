@@ -59,14 +59,23 @@ public class UserServiceImpl implements UserService {
 		}
 
 		User oldUser = optional.get();
-		if (user.getName() != null) {
+		if (user.getName() != null && !user.getName().equals("")) {
 			oldUser.setName(user.getName());
 		}
-		if (user.getEmail() != null) {
-			oldUser.setEmail(user.getEmail());
+		if (user.getBio() != null && !user.getBio().equals("")) {
+			oldUser.setBio(user.getBio());
 		}
-		if (user.getGender() != null) {
-			oldUser.setGender(user.getGender());
+		if (user.getWebsite() != null && !user.getWebsite().equals("")) {
+			oldUser.setWebsite(user.getWebsite());
+		}
+		if (user.getLocation() != null && !user.getLocation().equals("")) {
+			oldUser.setLocation(user.getLocation());
+		}
+		if (user.getImageUrl() != null && !user.getImageUrl().equals("")) {
+			oldUser.setImageUrl(user.getImageUrl());
+		}
+		if (user.getBackgroundImage() != null && !user.getBackgroundImage().equals("")) {
+			oldUser.setBackgroundImage(user.getBackgroundImage());
 		}
 		return userRepository.save(oldUser);
 	}

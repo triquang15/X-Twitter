@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +37,7 @@ public class UserController {
 	private com.triquang.model.mapper.UserMapper userMapper;
 
 	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
-	@GetMapping("/me")
+	@GetMapping("/profile")
 	public UserDto getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
 		User user = userService.validateAndGetUserByUsername(currentUser.getUsername());
 		return userMapper.toUserDto(user);
@@ -47,15 +48,13 @@ public class UserController {
 	public List<User> getAllUser() throws UserException {
 		return userService.getUsers();
 	}
-	
-	@Operation(security = {@SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME)})
-    @GetMapping
-    public List<UserDto> getUsers() {
-        return userService.getUsers().stream()
-                .map(userMapper::toUserDto)
-                .collect(Collectors.toList());
-    }
-	
+
+	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
+	@GetMapping
+	public List<UserDto> getUsers() {
+		return userService.getUsers().stream().map(userMapper::toUserDto).collect(Collectors.toList());
+	}
+
 	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
 	@GetMapping("/{userId}")
 	public User findUserById(@PathVariable("userId") Integer userId) throws UserException {
@@ -63,10 +62,11 @@ public class UserController {
 
 	}
 
-	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
-	@PutMapping("/{userId}")
-	public User updateUserHandler(@RequestBody User user, @PathVariable Integer userId) throws UserException {
-		return userService.updateUser(user, userId);
+	@PutMapping("/update")
+	public User updateUserHandler(@RequestBody User user, @RequestHeader("Authorization") String token)
+			throws UserException {
+		User userReq = userService.findUserProfile(token);
+		return userService.updateUser(user, userReq.getId());
 
 	}
 

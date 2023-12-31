@@ -7,9 +7,14 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import { Profile } from '../Profile/Profile'
 import { CreateReel } from '../Reels/CreateReel'
 import { Reels } from '../Reels/Reels'
+import { useDispatch, useSelector } from 'react-redux'
 
 export const HomePage = () => {
   const location = useLocation()
+  const dispatch = useDispatch();
+  const jwt = localStorage.getItem('jwt');
+  const {auth} = useSelector(store => store);
+  
   return (
     <div className='px-20'>
       <Grid container spacing={0}>

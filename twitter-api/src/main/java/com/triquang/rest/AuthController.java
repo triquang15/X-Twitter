@@ -66,6 +66,8 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setName(signUpRequest.getName());
         user.setEmail(signUpRequest.getEmail());
+        user.setBirthDate(signUpRequest.getBirthDate());
+        user.setRole(com.triquang.security.WebSecurityConfig.USER);
         user.setProvider(OAuth2Provider.LOCAL);
         return user;
     }
