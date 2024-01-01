@@ -11,14 +11,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.triquang.exception.PostException;
 import com.triquang.exception.UserException;
 import com.triquang.model.Post;
+import com.triquang.model.User;
 import com.triquang.response.ApiResponse;
 import com.triquang.service.PostService;
+import com.triquang.service.UserService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import static com.triquang.config.SwaggerConfig.BEARER_KEY_SECURITY_SCHEME;
@@ -29,12 +33,15 @@ public class PostController {
 
 	@Autowired
 	private PostService postService;
+	
+	@Autowired
+	private UserService userService;
 
-	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
-	@PostMapping("/create/user/{userId}")
-	public ResponseEntity<Post> createPost(@RequestBody Post post, @PathVariable Integer userId)
+	@PostMapping("/create")
+	public ResponseEntity<Post> createPost(@RequestBody Post post, @RequestHeader("Authorization") String token)
 			throws UserException, PostException {
-		Post createPost = postService.createPost(post, userId);
+		User userReq = userService.findUserProfile(token);
+		Post createPost = postService.createPost(post, userReq.getId());
 
 		return new ResponseEntity<>(createPost, HttpStatus.CREATED);
 	}
@@ -83,10 +90,11 @@ public class PostController {
 	}
 
 	@Operation(security = { @SecurityRequirement(name = BEARER_KEY_SECURITY_SCHEME) })
-	@PutMapping("/like/{postId}/user/{userId}")
-	public ResponseEntity<Post> likePostHandler(@PathVariable Integer postId, @PathVariable Integer userId)
+	@PutMapping("/like/{postId}")
+	public ResponseEntity<Post> likePostHandler(@PathVariable Integer postId, @RequestHeader("Authorization") String token)
 			throws PostException, UserException {
-		Post post = postService.likePost(postId, userId);
+		User userReq = userService.findUserProfile(token);
+		Post post = postService.likePost(postId, userReq.getId());
 		return new ResponseEntity<Post>(post, HttpStatus.ACCEPTED);
 
 	}

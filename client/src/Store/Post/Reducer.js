@@ -1,55 +1,54 @@
-import { FIND_POST_BY_ID_FAILURE, FIND_POST_BY_ID_REQUEST, FIND_POST_BY_ID_SUCCESS, GET_ALL_POST_SUCCESS, GET_USER_POST_SUCCESS, LIKE_POST_FAILURE, LIKE_POST_REQUEST, LIKE_POST_SUCCESS, POST_CREATE_FAILURE, POST_CREATE_REQUEST, POST_CREATE_SUCCESS, POST_DELETE_FAILURE, POST_DELETE_REQUEST, POST_DELETE_SUCCESS, REPLY_POST_FAILURE, REPLY_POST_REQUEST, REPLY_POST_SUCCESS, RE_POST_FAILURE, RE_POST_REQUEST, RE_POST_SUCCESS, USER_LIKE_POST_FAILURE, USER_LIKE_POST_REQUEST, USER_LIKE_POST_SUCCESS } from "./ActionType";
+import { CREATE_COMMENT_SUCCESS, GET_ALL_POST_FAILURE, GET_ALL_POST_REQUEST, GET_ALL_POST_SUCCESS, LIKE_POST_FAILURE, LIKE_POST_REQUEST, LIKE_POST_SUCCESS, POST_CREATE_FAILURE, POST_CREATE_REQUEST, POST_CREATE_SUCCESS } from "./ActionType";
 
 const initialState = {
     loading: false,
-    data: null,
     error: null,
     posts: [],
     post: null,
+    like: null,
+    comments: [],
+    newComment: null
 }
 export const postReducer = (state = initialState, action) => {
     switch (action.type) {
         case POST_CREATE_REQUEST:
-        case POST_DELETE_REQUEST:
-        case USER_LIKE_POST_REQUEST:
         case LIKE_POST_REQUEST:
-        case REPLY_POST_REQUEST:
-        case RE_POST_REQUEST:
-        case FIND_POST_BY_ID_REQUEST:
-            return { ...state, loading: true, error: null }
-
-        case POST_CREATE_FAILURE:
-        case POST_DELETE_FAILURE:
-        case USER_LIKE_POST_FAILURE:
-        case LIKE_POST_FAILURE:
-        case REPLY_POST_FAILURE:
-        case RE_POST_FAILURE:
-        case FIND_POST_BY_ID_FAILURE:
-            return { ...state, loading: false, error: action.payload }
+        case GET_ALL_POST_REQUEST:
+            return { ...state, loading: false, error: null }
 
         case POST_CREATE_SUCCESS:
-            return { ...state, loading: false, error: null, posts: [action.payload, ...state.posts] };
+            return {
+                ...state, post: action.payload,
+                posts: [action.payload, ...state.posts],
+                loading: false, error: null
+            };
 
         case GET_ALL_POST_SUCCESS:
-        case GET_USER_POST_SUCCESS:
-            return { ...state, loading: false, error: null, posts: action.payload, };
-
-        case USER_LIKE_POST_SUCCESS:
-            return { ...state, loading: false, error: null, likedPosts: action.payload };
+            return {
+                ...state, 
+                posts: action.payload,
+                comments: action.payload.comments,
+                loading: false, error: null
+            }
 
         case LIKE_POST_SUCCESS:
-            return { ...state, loading: false, error: null, like: action.payload };
+            return {
+                ...state,
+                like: action.payload,
+                posts: state.posts.map((item) => item.id === action.payload.id ? action.payload : item),
+                loading: false, error: null
+            }
 
-        case POST_DELETE_SUCCESS:
-            return { ...state, loading: false, error: null, posts: state.posts.filter((p) => p.id !== action.payload) }
+        case CREATE_COMMENT_SUCCESS:
+            return{
+                ...state,
+                newComment: action.payload
+            }
 
-        case RE_POST_SUCCESS:
-            return { ...state, loading: false, error: null, repost: action.payload };
-
-        case FIND_POST_BY_ID_SUCCESS:
-        case REPLY_POST_SUCCESS:
-            return { ...state, loading: false, error: null, post: action.payload };
-
+        case POST_CREATE_FAILURE:
+        case LIKE_POST_FAILURE:
+        case GET_ALL_POST_FAILURE:
+            return { ...state, loading: false, error: action.payload }
         default:
             return state;
     }
