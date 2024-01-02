@@ -47,8 +47,8 @@ export const PostCard = ({ item }) => {
                         <MoreVertIcon />
                     </IconButton>
                 }
-                title={item.user.name}
-                subheader={"@" + item.user.username}
+                title={item.user?.name}
+                subheader={"@" + item.user?.username}
             />
             <CardMedia
                 component="img"
