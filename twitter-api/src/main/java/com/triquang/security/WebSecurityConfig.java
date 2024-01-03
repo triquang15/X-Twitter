@@ -39,10 +39,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/api/posts", "/api/posts/**").hasAnyAuthority(ADMIN, USER)
-                        .requestMatchers("/api/users", "/api/users/**").hasAnyAuthority(ADMIN,USER)
+                        .requestMatchers("/api/posts", "/api/posts/**", "/api/chats/**").hasAnyAuthority(ADMIN, USER)
+                        .requestMatchers("/api/users", "/api/users/**", "/api/messages/**").hasAnyAuthority(ADMIN,USER)
                         .requestMatchers("/public/**", "/auth/**", "/oauth2/**").permitAll()
-                        .requestMatchers("/", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/**", "/error", "/csrf", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login
                         .userInfoEndpoint().userService(customOauth2UserService)

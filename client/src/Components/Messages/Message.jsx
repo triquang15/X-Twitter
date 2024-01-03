@@ -1,5 +1,5 @@
 import { Avatar, Backdrop, CircularProgress, Grid, IconButton } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import WestIcon from '@mui/icons-material/West';
 import WifiCalling3Icon from '@mui/icons-material/WifiCalling3';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createMessage, getAllChat } from '../../Store/Messages/messageAction';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { uploadToCloudinaryImageAndVideo } from '../../Utilities/UploadFileToCloud';
+import SockJS from 'sockjs-client';
+import Stom from 'stompjs';
 
 export const Message = () => {
   const dispatch = useDispatch();
@@ -19,6 +21,8 @@ export const Message = () => {
   const [messages, setMessages] = useState([]);
   const [selectedImage, setSelectedImage] = useState();
   const [loading, setLoading] = useState(false);
+  const [stompClient, setStompClient] = useState();
+  const chatRef = useRef(null);
 
   const handleSelectImage = async(e) => {
     setLoading(true)
@@ -33,16 +37,56 @@ export const Message = () => {
       content: value,
       image: selectedImage
     };
-    dispatch(createMessage(message))
+    dispatch(createMessage({message, sendMessageToServer}))
   }
 
   useEffect(() => {
     dispatch(getAllChat())
   }, [])
 
+  // useEffect(()=> {
+  //   setMessages([...messages, message.message])
+  // }, [message.message])
+
   useEffect(()=> {
-    setMessages([...messages, message.message])
-  }, [message.message])
+    const sock = new SockJS('http://localhost:8080/ws')
+    const stomp = Stom.over(sock);
+    setStompClient(stomp);
+
+    stomp.connect({}, onConnect, onError)
+  }, [])
+  
+  const onConnect=()=>{
+      console.log("WebSocket Connected...");
+  }
+
+  const onError = (error)=> {
+    console.log('Error ', error);
+  }
+useEffect(()=> {
+  if(stompClient && auth.user && currentChat){
+    stompClient.subscribe(`/user/${currentChat.id}/private`,
+    onMessageReceived)
+  }
+})
+
+const sendMessageToServer = (newMsg)=> {
+  if(stompClient && newMsg){
+    stompClient.send(`/app/chat/${currentChat?.id.toString()}`, {}, JSON.stringify(newMsg))
+  }
+}
+
+const onMessageReceived = (payload)=> {
+  const recivedMessage = JSON.parse(payload.body)
+  console.log("Message Recieved from Server :: " + recivedMessage);
+  setMessages([...messages, recivedMessage])
+}
+
+useEffect(()=> {
+  if(chatRef.current){
+    chatRef.current.scrollTop=chatRef.current.scrollHeight;
+  }
+},[messages])
   return (
     <div>
       <Grid container className='h-screen overflow-y-hidden'>
@@ -87,7 +131,7 @@ export const Message = () => {
                 </IconButton>
               </div>
             </div>
-            <div className='hideScrollbar overflow-y-scroll h-[80vh] px-2 space-y-2 py-2'>
+            <div ref={chatRef} className='hideScrollbar overflow-y-scroll h-[80vh] px-2 space-y-2 py-2'>
              {messages.map((item) => <ChatMessage item={item} />)} 
             </div>
             <div className='sticky bottom-0 border-l'>
