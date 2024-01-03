@@ -15,17 +15,15 @@ function App() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if(jwt) {
-      dispatch(getUserProfile(jwt))
-      navigate("/")
-    }
-  }, [auth.jwt])
+    dispatch(getUserProfile(jwt))
+  }, [jwt])
 
   return (
     <div className="">
         <Routes>
-            <Route path='/*' element={auth.user?<HomePage/>:<Authentication/>}></Route>
-            <Route path='/messages' element={<Message/>}></Route>
+            <Route path='/*' element={auth.user?<HomePage/>:<Authentication/>}/>
+            <Route path='/messages' element={<Message/>}/>
+            <Route path='/*' element={<Authentication/>}/>
         </Routes>
     </div>
   );
